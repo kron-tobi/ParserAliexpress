@@ -7,29 +7,29 @@ import java.util.Properties;
 public class Parser {
     public void doParse(BufferedReader bufferedReader) throws IOException {
         String[] str = new String[4];
-
+        String s = "";
         Properties parseString = new PropertyReader().getProperties();
         //System.out.println(parseString);
-        while ((str[1] = bufferedReader.readLine()) != null) {
-            //System.out.println(str[1]);
-            if (str[1].contains(parseString.getProperty("price"))) {
-                str[1] = str[1].substring(0, str[1].indexOf(" руб"));
-                str[1] = str[1].replaceAll(parseString.getProperty("price"), "");
-                System.out.println("Цена: " + str[1]);
+        System.out.println("URL: " + parseString.getProperty("url"));
+        while ((s = bufferedReader.readLine()) != null) {
+            if (s.contains(parseString.getProperty("price"))) {
+                str[0] = str[1] = s;
+                str[0] = doReplace(str[0], parseString, ". |", "-in ");
+                str[1] = doReplace(str[1], parseString, parseString.getProperty("price"), " руб");
             }
-            else if (str[1].contains(parseString.getProperty("reviews"))) {
-                str[2] = str[1];
-                str[3] = str[2];
-
-                str[2] = str[2].substring(str[2].indexOf("\"totalValidNum\":"), str[2].indexOf(",\"trialReviewNum\":0,"));
-                str[2] = str[2].replaceAll(parseString.getProperty("reviews"), "");
-                System.out.println("Отзывы: " + str[2]);
-
-                str[3] = str[3].substring(str[3].indexOf(parseString.getProperty("orders")), str[3].indexOf(",\"tradeCountUnit\""));
-                str[3] = str[3].replaceAll(parseString.getProperty("orders"), "");
-                System.out.println("Заказ(ов): " + str[3]);
+            else if (s.contains(parseString.getProperty("reviews"))) {
+                str[2] = str[3] = s;
+                str[2] = doReplace(str[2], parseString, parseString.getProperty("reviews"), ",\"trialReviewNum\":0,");
+                str[3] = doReplace(str[3], parseString, parseString.getProperty("orders"), ",\"tradeCountUnit\"");
             }
         }
+        new PrintResult().print(str);
+    }
+
+    public String doReplace(String str, Properties parseString, String beginIndex, String endIndex) {
+        str = str.substring(str.indexOf(beginIndex), str.indexOf(endIndex));
+        str = str.replace(beginIndex, "");
+        return str;
     }
 }
 
