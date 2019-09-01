@@ -6,11 +6,12 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class PropertyReader {
+
     private Properties properties;
 
-    public PropertyReader() throws FileNotFoundException {
+    public PropertyReader(String prop) throws FileNotFoundException {
         properties = new Properties();
-        FileInputStream fileInputStream = new FileInputStream("C:\\Program krontobi\\ParserAliexpress\\src\\main\\resources\\config.properties");
+        FileInputStream fileInputStream = new FileInputStream(("C:\\Program krontobi\\ParserAliexpress\\src\\main\\resources\\").concat(prop));
         try {
             properties.load(fileInputStream);
         } catch (IOException e) {
@@ -21,4 +22,5 @@ public class PropertyReader {
     public Properties getProperties() {
         return properties;
     }
+
 }
