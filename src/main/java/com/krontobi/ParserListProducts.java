@@ -6,7 +6,7 @@ import java.util.Properties;
 
 public class ParserListProducts {
 
-    public void doParse(BufferedReader bufferedReader) throws IOException {
+    public String[] doParse(BufferedReader bufferedReader) throws IOException {
         String[] str = new String[4];
         String s;
         Properties parseString = new PropertyReader("config.properties").getProperties();
@@ -19,13 +19,20 @@ public class ParserListProducts {
                 str[0] = doReplace(str[0], parseString.getProperty("list.product.name"), "\",\"");
             }
         }
-        new PrintResult().print(str);
+        print(str);
+        return str;
     }
 
     private String doReplace(String str, String beginIndex, String endIndex) {
         str = str.substring(str.indexOf(beginIndex), str.indexOf(endIndex));
         str = str.replace(beginIndex, "");
         return str;
+    }
+
+    public void print(String[] str) {
+        for(String s : str) {
+            System.out.println(s);
+        }
     }
 
 }
