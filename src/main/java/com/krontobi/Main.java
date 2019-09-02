@@ -18,12 +18,14 @@ public class Main {
             InputStream reader = url.openStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(reader));
             String[] result = new ParserProduct().doParse(bufferedReader);
-            new ConnectionDB().postInfoInDB(result);
+            ConnectionDB connectionDB = new ConnectionDB();
+            connectionDB.setConnection();
+            connectionDB.insertInDB(result);
+            connectionDB.closeConnection();
             bufferedReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
 }

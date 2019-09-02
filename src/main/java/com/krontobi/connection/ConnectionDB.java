@@ -4,11 +4,9 @@ import com.krontobi.PropertyReader;
 import org.apache.log4j.Logger;
 
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 
 public class ConnectionDB {
 
@@ -16,6 +14,7 @@ public class ConnectionDB {
     private static String USER;
     private static String PASS;
     private static final Logger log = Logger.getLogger(ConnectionDB.class);
+    private Connection connection = null;
 
     public ConnectionDB() {
         try {
@@ -28,7 +27,7 @@ public class ConnectionDB {
         }
     }
 
-    public void postInfoInDB(String[] str) {
+    public void setConnection() {
         log.info("Testing connection to PostgreSQL JDBC");
         try {
             Class.forName("org.postgresql.Driver");
@@ -39,16 +38,34 @@ public class ConnectionDB {
         }
         log.info("PostgreSQL JDBC Driver successfully connected");
 
-        Connection connection = null;
-        LocalDateTime dateTime = LocalDateTime.now(); // gets the current date and time
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        //System.out.println(dateTime.format(formatter));
-        //System.out.println(date.format(formatter));
-        if (str[1].length() > 100) {
-            str[1] = str[1].substring(0, 100);
-        }
         try {
+            connection = DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch (SQLException e) {
+            log.info("Connection Failed");
+            log.error(e);
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            if (connection != null) {
+                log.info("You successfully connected to database now");
+                connection.close();
+            } else {
+                log.info("Failed to make connection to database");
+            }
+        } catch (SQLException e) {
+            log.error(e);
+        }
+    }
+
+    public void insertInDB(String[] str) {
+        try {
+            if (str[1].length() > 100) {
+                str[1] = str[1].substring(0, 100);
+            }
+            LocalDateTime dateTime = LocalDateTime.now(); // gets the current date and time
+            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             connection = DriverManager.getConnection(DB_URL, USER, PASS);
             String sql = "INSERT INTO videocards (id_videocard, date_price, url_videocard, name_videocard, price_videocard, orders_videocard, reviews_videocard) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -62,19 +79,8 @@ public class ConnectionDB {
             preparedStatement.setInt(7, Integer.parseInt(str[4]));
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            log.info("Connection Failed");
+            log.info("Insert INTO data base Failed");
             log.error(e);
-        } finally {
-            try {
-                if (connection != null) {
-                    log.info("You successfully connected to database now");
-                    connection.close();
-                } else {
-                    log.info("Failed to make connection to database");
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
         }
     }
 
