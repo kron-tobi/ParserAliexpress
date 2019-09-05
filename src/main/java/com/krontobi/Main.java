@@ -1,14 +1,18 @@
 package com.krontobi;
 
 import com.krontobi.connection.ConnectionDB;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.URL;
 
 public class Main {
+    private static Logger log = Logger.getLogger(Main.class);
+    private static int countParsingPage = 0;
 
     public static void main(String[] args) {
         selectParsingPages("product.url");
+        log.info("Number of Updates Page: " + countParsingPage);
     }
 
     private static void selectParsingPages(String address){
@@ -17,7 +21,19 @@ public class Main {
             URL url = new URL(propertyReader.getProperties().getProperty(address));
             InputStream reader = url.openStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(reader));
-            String[] result = new ParserProduct().doParse(bufferedReader);
+            String[] result;
+            try {
+                result = new ParserProduct().doParse(bufferedReader);
+            } catch (NotFindOrdersException e) {
+                log.info(e);
+                if(countParsingPage < 100) {
+                    countParsingPage++;
+                    bufferedReader.close();
+                    reader.close();
+                    selectParsingPages(address);
+                }
+                return;
+            }
 
             ConnectionDB connectionDB = new ConnectionDB();
             connectionDB.setConnectionDB();
@@ -32,6 +48,7 @@ public class Main {
             connectionDB.insertInDB(result);
             connectionDB.closeConnectionDB();
             bufferedReader.close();
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

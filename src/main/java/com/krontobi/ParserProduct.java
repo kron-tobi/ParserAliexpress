@@ -6,38 +6,53 @@ import java.util.Properties;
 
 public class ParserProduct {
 
-    public String[] doParse(BufferedReader bufferedReader) throws IOException {
+    public String[] doParse(BufferedReader bufferedReader) throws IOException, NotFindOrdersException {
         String[] str = new String[5];
         String s;
+        StringBuilder fullString = new StringBuilder();
         Properties parseString = new PropertyReader("config.properties").getProperties();
         str[0] = parseString.getProperty("product.url");
         while ((s = bufferedReader.readLine()) != null) {
+            fullString.append(s);
             //System.out.println(s);
-            if (s.contains(parseString.getProperty("product.price"))) {
-                str[1] = str[2] = s;
-                str[1] = doReplace(str[1], ". |", "-in ");
-                str[2] = doReplace(str[2], parseString.getProperty("product.price"), " руб");
-            } else if (s.contains(parseString.getProperty("product.reviews"))) {
-                str[3] = str[4] = s;
-                str[3] = doReplace(str[3], parseString.getProperty("product.reviews"), ",\"trialReviewNum\":0,");
-                str[4] = doReplace(str[4], parseString.getProperty("product.orders"), ",\"tradeCountUnit\"");
-                break;
-            }
+        }
+        String result = fullString.toString();
+        int k = 0;
+        str[1] = doFindStr(result, parseString, "product.name", "-in ");
+        str[2] = doFindStr(result, parseString, "product.price", " руб");
+        str[3] = doFindStr(result, parseString, "product.reviews", ",\"trialReviewNum\":0,");
+        str[4] = doFindStr(result, parseString, "product.orders", ",\"tradeCountUnit\"");
+        if (str[4] == null) {
+            throw new NotFindOrdersException("Not found orders");
         }
         //print(str);
         return str;
     }
 
     private String doReplace(String str, String beginIndex, String endIndex) {
-        str = str.substring(str.indexOf(beginIndex), str.indexOf(endIndex));
+        int firstIndex = -4;
+        int secondIndex = -4;
+        while (firstIndex < 0 || secondIndex < 0) {
+            firstIndex = str.indexOf(beginIndex);
+            secondIndex = str.indexOf(endIndex);
+        }
+
+        str = str.substring(firstIndex, secondIndex);
         str = str.replace(beginIndex, "");
         return str;
     }
 
     public void print(String[] str) {
-        for(String s : str) {
+        for (String s : str) {
             System.out.println(s);
         }
+    }
+
+    private String doFindStr(String result, Properties parseString, String beginWord, String endWord) {
+        if (result.contains(parseString.getProperty(beginWord))) {
+            result = doReplace(result, parseString.getProperty(beginWord), endWord);
+        } else result = null;
+        return result;
     }
 
 }
