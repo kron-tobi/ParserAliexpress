@@ -1,5 +1,7 @@
 package com.krontobi;
 
+import com.krontobi.customException.NotFindOrdersException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -17,9 +19,8 @@ public class ParserProduct {
             //System.out.println(s);
         }
         String result = fullString.toString();
-        int k = 0;
         str[1] = doFindStr(result, parseString, "product.name", "-in ");
-        str[2] = doFindStr(result, parseString, "product.price", " руб");
+        str[2] = doFindStr(result, parseString, "product.price", "руб.");
         str[3] = doFindStr(result, parseString, "product.reviews", ",\"trialReviewNum\":0,");
         str[4] = doFindStr(result, parseString, "product.orders", ",\"tradeCountUnit\"");
         if (str[4] == null) {

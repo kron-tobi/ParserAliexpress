@@ -1,6 +1,7 @@
 package com.krontobi;
 
 public class ParserURL {
+
     public String getShortURL(String str) {
         String result = str;
         result = result.substring(str.indexOf("item/"),str.indexOf(".html"));

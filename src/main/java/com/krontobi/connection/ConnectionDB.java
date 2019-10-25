@@ -1,6 +1,5 @@
 package com.krontobi.connection;
 
-import com.krontobi.ParserURL;
 import com.krontobi.PropertyReader;
 import org.apache.log4j.Logger;
 
@@ -11,22 +10,12 @@ import java.time.LocalDateTime;
 
 public class ConnectionDB {
 
-    private static String DB_URL;
-    private static String USER;
-    private static String PASS;
+    private static final PropertyReader propertyReader = new PropertyReader("connection.properties");
+    private static String DB_URL = propertyReader.getProperties().getProperty("url");
+    private static final String USER = propertyReader.getProperties().getProperty("user");
+    private static String PASS = propertyReader.getProperties().getProperty("password");
     private static final Logger log = Logger.getLogger(ConnectionDB.class);
     private Connection connection = null;
-
-    public ConnectionDB() {
-        try {
-            PropertyReader propertyReader = new PropertyReader("connection.properties");
-            DB_URL = propertyReader.getProperties().getProperty("url");
-            USER = propertyReader.getProperties().getProperty("user");
-            PASS = propertyReader.getProperties().getProperty("password");
-        } catch (FileNotFoundException e) {
-            log.error(e);
-        }
-    }
 
     public void setConnectionDB() {
         log.info("Testing connection to PostgreSQL JDBC");
@@ -42,21 +31,20 @@ public class ConnectionDB {
         try {
             connection = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (SQLException e) {
-            log.info("Connection Failed");
-            log.error(e);
+            log.error("Connection Failed " + e);
         }
     }
 
     public void closeConnectionDB() {
-        try {
-            if (connection != null) {
-                log.info("You successfully connected to database now");
+        if (connection != null) {
+            try {
                 connection.close();
-            } else {
-                log.info("Failed to make connection to database");
+                log.info("You successfully connected to database now");
+            } catch (SQLException e) {
+                log.error("Close connection Failed " + e);
             }
-        } catch (SQLException e) {
-            log.error(e);
+        } else {
+            log.info("Failed to make connection to database");
         }
     }
 
