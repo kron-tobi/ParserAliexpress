@@ -50,8 +50,8 @@ public class ConnectionDB {
 
     public boolean existURL(String shortURL) {
         String sql = "SELECT * " +
-                "FROM url_all_products " +
-                "WHERE short_url_product = '" + shortURL + "'";
+                "FROM url_product " +
+                "WHERE short_url = '" + shortURL + "'";
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -69,10 +69,10 @@ public class ConnectionDB {
     }
 
     public void addNewURL(String url, String shortURL) {
-        String sql = "INSERT INTO url_all_products(id_url_product, url_product, short_url_product) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO url_product(id, url, short_url) VALUES (?, ?, ?)";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, getMaxID("id_url_product", "url_all_products") + 1);
+            preparedStatement.setInt(1, getMaxID("id", "url_product") + 1);
             preparedStatement.setString(2, url);
             preparedStatement.setString(3, shortURL);
             preparedStatement.executeUpdate();
@@ -89,12 +89,12 @@ public class ConnectionDB {
             LocalDateTime dateTime = LocalDateTime.now(); // gets the current date and time
             //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             connection = DriverManager.getConnection(DB_URL, USER, PASS);
-            String sql = "INSERT INTO videocards (id_videocard, date_price, url_videocard, name_videocard, price_videocard, orders_videocard, reviews_videocard) " +
+            String sql = "INSERT INTO product (id, date_price, url, description, price, orders, reviews) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, getMaxID("id_videocard", "videocards") + 1);
+            preparedStatement.setInt(1, getMaxID("id", "product") + 1);
             preparedStatement.setTimestamp(2, Timestamp.valueOf(dateTime));
-            preparedStatement.setInt(3, getId("short_url_product", str[0], "url_all_products"));
+            preparedStatement.setInt(3, getId("short_url", str[0], "url_product"));
             preparedStatement.setString(4, str[1]);
             preparedStatement.setFloat(5, Float.parseFloat(str[2]));
             preparedStatement.setInt(6, Integer.parseInt(str[3]));
@@ -106,10 +106,10 @@ public class ConnectionDB {
         }
     }
 
-    private int getMaxID(String id, String path) {
+    private int getMaxID(String id, String table) {
         int maxValue = 0;
         String sql = "SELECT MAX(" + id + ") " +
-                "FROM " + path;
+                "FROM " + table;
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -122,10 +122,10 @@ public class ConnectionDB {
         return maxValue;
     }
 
-    private int getId(String varDB, String varMy, String path) {
+    private int getId(String varDB, String varMy, String table) {
         int id = 0;
         String sql = "SELECT * " +
-                "FROM " + path +
+                "FROM " + table +
                 " WHERE " + varDB + " = '" + varMy + "'";
         try {
             Statement statement = connection.createStatement();

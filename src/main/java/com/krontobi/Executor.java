@@ -52,7 +52,7 @@ public class Executor {
         // если ссылка на товар новая
         if (!connectionDB.existURL(shortURL)) {
             connectionDB.addNewURL(url.toString(), shortURL);
-            //connectionDB.getId("id_url_product", shortURL, "url_all_products");
+            //connectionDB.getId("id_url_product", shortURL, "url_product");
         }
         connectionDB.insertInDB(result);
         connectionDB.closeConnectionDB();

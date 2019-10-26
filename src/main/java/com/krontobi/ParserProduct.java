@@ -8,21 +8,23 @@ import java.util.Properties;
 
 public class ParserProduct {
 
+    private static final Properties properties = new PropertyReader("config.properties").getProperties();
+
     public String[] doParse(BufferedReader bufferedReader) throws IOException, NotFindOrdersException {
         String[] str = new String[5];
         String s;
         StringBuilder fullString = new StringBuilder();
-        Properties parseString = new PropertyReader("config.properties").getProperties();
-        str[0] = parseString.getProperty("product.url");
+
+        str[0] = properties.getProperty("product.url");
         while ((s = bufferedReader.readLine()) != null) {
             fullString.append(s);
             //System.out.println(s);
         }
         String result = fullString.toString();
-        str[1] = doFindStr(result, parseString, "product.name", "-in ");
-        str[2] = doFindStr(result, parseString, "product.price", "руб.");
-        str[3] = doFindStr(result, parseString, "product.reviews", ",\"trialReviewNum\":0,");
-        str[4] = doFindStr(result, parseString, "product.orders", ",\"tradeCountUnit\"");
+        str[1] = doFindStr(result, properties, "product.name", "-in ");
+        str[2] = doFindStr(result, properties, "product.price", "руб.");
+        str[3] = doFindStr(result, properties, "product.reviews", ",\"trialReviewNum\":0,");
+        str[4] = doFindStr(result, properties, "product.orders", ",\"tradeCountUnit\"");
         if (str[4] == null) {
             throw new NotFindOrdersException("Not found orders");
         }
